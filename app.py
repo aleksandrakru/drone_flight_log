@@ -6,29 +6,6 @@ from io import BytesIO
 
 st.set_page_config(page_title="Drone Flight Log", layout="centered")
 
-st.markdown(
-    """
-    <style>
-    /* Set all text to black */
-    body, .stText, .stMarkdown, .css-1d391kg { 
-        color: black;
-    }
-
-    /* Dropdown menus (selectboxes) */
-    div[role="combobox"] > div > div > div {
-        background-color: #cccccc !important;
-        color: black !important;
-    }
-
-    /* Inputs inside forms */
-    input, select, textarea {
-        color: black !important;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
 # --- logo ---
 st.image("logo.png", width=200)
 
