@@ -46,7 +46,7 @@ with st.form("flight_form"):
     start = st.time_input("Start time", time(10,0))
     end = st.time_input("End time", time(11,0))
     project = st.text_input("Project number")
-    pilot = st.selectbox("Pilot", ["Aleksandra Kruszewska", "Arnold Hoyer", "Bertalan Szabo-Papp", "Joao Scotti"])
+    pilot = st.selectbox("Pilot", ["Aleksandra Kruszewska", "Arnold Hoyer", "Bertalan Szabo-Papp", "Joao Scotti", "Michael Lloyd"])
     drone = st.selectbox("Drone", ["DJI Mini 3 - 1581F4XFC2285007E8MV", "DJI Mini 3 - Manchester", "DJI Mini 2", "DJI Mavic 3 Enterprise"])
     submit = st.form_submit_button("Save flight")
 
