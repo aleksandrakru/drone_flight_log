@@ -24,7 +24,7 @@ conn.commit()
 # --- interface ---
 st.title("✈️ Drone Flight Log")
 
-with st.form("flight_form"):
+with st.form("flight_form1"):
     date = st.date_input("Date", datetime.today())
     start = st.time_input("Start time", time(10,0))
     end = st.time_input("End time", time(11,0))
@@ -120,7 +120,7 @@ conn.commit()
 # --- interface ---
 st.title("✈️ Drone Flight Log")
 
-with st.form("flight_form"):
+with st.form("flight_form2"):
     date = st.date_input("Date", datetime.today())
     start = st.time_input("Start time", time(10,0))
     end = st.time_input("End time", time(11,0))
