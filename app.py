@@ -2,6 +2,7 @@ import streamlit as st
 import sqlite3
 import pandas as pd
 from datetime import datetime, time
+from io import BytesIO
 
 # --- database ---
 conn = sqlite3.connect("flights.db")
@@ -60,9 +61,15 @@ st.download_button(
     mime="text/csv"
 )
 
+# save Excel into memory (buffer)
+output = BytesIO()
+with pd.ExcelWriter(output, engine="openpyxl") as writer:
+    df.to_excel(writer, index=False, sheet_name="Flights")
+excel_data = output.getvalue()
+
 st.download_button(
     label="⬇️ Download as Excel",
-    data=df.to_excel(index=False, engine="openpyxl"),
+    data=excel_data,
     file_name="flights.xlsx",
     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 )
