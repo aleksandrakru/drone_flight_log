@@ -38,7 +38,7 @@ if submit:
     start_dt = datetime.combine(datetime.today(), start)
     end_dt = datetime.combine(datetime.today(), end)
     duration = (end_dt - start_dt).total_seconds() / 3600
-    
+
     if duration <= 0:
         st.error("❌ End time must be later than start time.")
     else:
@@ -54,25 +54,25 @@ df = pd.DataFrame(rows, columns=["Date", "Start time", "End time", "Duration (h)
 st.table(df)
 
 # --- download buttons ---
-st.download_button(
-    label="⬇️ Download as CSV",
-    data=df.to_csv(index=False).encode("utf-8"),
-    file_name="flights.csv",
-    mime="text/csv"
-)
+if not df.empty:
+    st.download_button(
+        label="⬇️ Download as CSV",
+        data=df.to_csv(index=False).encode("utf-8"),
+        file_name="flights.csv",
+        mime="text/csv"
+    )
 
-# save Excel into memory (buffer)
-output = BytesIO()
-with pd.ExcelWriter(output, engine="openpyxl") as writer:
-    df.to_excel(writer, index=False, sheet_name="Flights")
-excel_data = output.getvalue()
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine="openpyxl") as writer:
+        df.to_excel(writer, index=False, sheet_name="Flights")
+    excel_data = output.getvalue()
 
-st.download_button(
-    label="⬇️ Download as Excel",
-    data=excel_data,
-    file_name="flights.xlsx",
-    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-)
+    st.download_button(
+        label="⬇️ Download as Excel",
+        data=excel_data,
+        file_name="flights.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
 
 # --- statistics ---
 st.subheader("📊 Statistics")
