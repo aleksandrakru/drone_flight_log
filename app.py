@@ -4,6 +4,23 @@ import pandas as pd
 from datetime import datetime, time
 from io import BytesIO
 
+st.set_page_config(page_title="Drone Flight Log", page_icon="✈️", layout="centered")
+
+# --- logo ---
+st.image("logo.png", width=200)
+
+# --- background ---
+st.markdown(
+    """
+    <style>
+    .stApp {
+        background-color: #fcd2ec
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 # --- database ---
 conn = sqlite3.connect("flights.db")
 c = conn.cursor()
@@ -37,7 +54,7 @@ if submit:
     # calculate duration in hours
     start_dt = datetime.combine(datetime.today(), start)
     end_dt = datetime.combine(datetime.today(), end)
-    duration = (end_dt - start_dt).total_seconds() / 3600
+    duration = round((end_dt - start_dt).total_seconds() / 3600, 2)
 
     if duration <= 0:
         st.error("❌ End time must be later than start time.")
@@ -48,7 +65,7 @@ if submit:
         st.success(f"✅ Flight saved! Duration: {duration:.2f} hours")
 
 # --- data preview ---
-st.subheader("📋 Logged flights")
+st.subheader("Logged flights")
 rows = c.execute("SELECT date, start_time, end_time, duration, project, pilot, drone FROM flights").fetchall()
 df = pd.DataFrame(rows, columns=["Date", "Start time", "End time", "Duration (h)", "Project", "Pilot", "Drone"])
 st.table(df)
@@ -56,14 +73,14 @@ st.table(df)
 # --- download CSV only ---
 if not df.empty:
     st.download_button(
-        label="⬇️ Download as CSV",
+        label="⬇Download as CSV",
         data=df.to_csv(index=False).encode("utf-8"),
         file_name="flights.csv",
         mime="text/csv"
     )
 
 # --- statistics ---
-st.subheader("📊 Statistics")
+st.subheader("Statistics")
 
 # total flight hours per pilot
 pilot_hours = c.execute("""
