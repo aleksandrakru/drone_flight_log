@@ -1,9 +1,0 @@
-<<<<<<< HEAD
-streamlit
-pandas
-openpyxl
-=======
-streamlit
-pandas
-openpyxl
->>>>>>> 47d4b65 (update app.py)
