@@ -1,9 +1,9 @@
 import streamlit as st
 import pandas as pd
 from datetime import datetime, time
-from supabase import create_client
+from supabase import create_client, Client
 
-# --- Streamlit config ---
+# --- Streamlit page config ---
 st.set_page_config(page_title="Drone Flight Log", layout="centered")
 
 # --- logo ---
@@ -21,20 +21,16 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# --- connect to Supabase using service role key ---
-url = st.secrets["SUPABASE_URL"]
-anon_key = st.secrets["SUPABASE_KEY"]
-service_key = st.secrets["SUPABASE_SERVICE_ROLE_KEY"]
+# --- connect to Supabase ---
+SUPABASE_URL = st.secrets["SUPABASE_URL"]
+SUPABASE_KEY = st.secrets["SUPABASE_KEY"]  # do insert/read
+SUPABASE_SERVICE_ROLE_KEY = st.secrets["SUPABASE_SERVICE_ROLE_KEY"]  # do delete
 
-
-# klient dla zwykłych operacji (dodawanie, odczyt)
-supabase = create_client(url, anon_key)
-
-# klient dla admina (usuwanie lotów)
-supabase_admin = create_client(url, service_key)
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+supabase_admin = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 
 # --- interface ---
-st.title("Drone Flight Log")
+st.title("✈️ Drone Flight Log")
 
 with st.form("flight_form"):
     date = st.date_input("Date", datetime.today())
@@ -53,6 +49,7 @@ with st.form("flight_form"):
     ])
     submit = st.form_submit_button("Save flight")
 
+# --- save flight ---
 if submit:
     start_dt = datetime.combine(datetime.today(), start)
     end_dt = datetime.combine(datetime.today(), end)
