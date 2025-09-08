@@ -1,8 +1,7 @@
 import streamlit as st
-import sqlite3
 import pandas as pd
 from datetime import datetime, time
-from io import BytesIO
+from supabase import create_client
 
 st.set_page_config(page_title="Drone Flight Log", layout="centered")
 
@@ -21,22 +20,10 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# --- database ---
-conn = sqlite3.connect("flights.db")
-c = conn.cursor()
-c.execute('''
-    CREATE TABLE IF NOT EXISTS flights (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        date TEXT,
-        start_time TEXT,
-        end_time TEXT,
-        duration REAL,
-        project TEXT,
-        pilot TEXT,
-        drone TEXT
-    )
-''')
-conn.commit()
+# --- connect to Supabase ---
+url = st.secrets["SUPABASE_URL"]
+key = st.secrets["SUPABASE_KEY"]
+supabase = create_client(url, key)
 
 # --- interface ---
 st.title("Drone Flight Log")
@@ -59,33 +46,36 @@ if submit:
         st.error("❌ End time must be later than start time.")
     else:
         date_str = date.strftime("%y-%m-%d")  # YY-MM-DD format
-        c.execute(
-            "INSERT INTO flights (date, start_time, end_time, duration, project, pilot, drone) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            (date_str, str(start), str(end), duration, project, pilot, drone)
-        )
-        conn.commit()
+        supabase.table("flights").insert({
+            "date": date_str,
+            "start_time": str(start),
+            "end_time": str(end),
+            "duration": duration,
+            "project": project,
+            "pilot": pilot,
+            "drone": drone
+        }).execute()
         st.success(f"✅ Flight saved! Duration: {duration:.2f} hours")
 
 # --- data preview with delete buttons ---
 st.subheader("Logged flights (Admin)")
 
-rows = c.execute("SELECT id, date, start_time, end_time, duration, project, pilot, drone FROM flights").fetchall()
-df = pd.DataFrame(rows, columns=["ID", "Date", "Start time", "End time", "Duration (h)", "Project", "Pilot", "Drone"])
-df["Duration (h)"] = df["Duration (h)"].map(lambda x: f"{x:.2f}")  # zawsze 2 miejsca po przecinku
+response = supabase.table("flights").select("*").execute()
+rows = response.data
+df = pd.DataFrame(rows)
 
-# wyświetlanie w jednej linii
-for _, row in df.iterrows():
-    st.write(f"{row['Date']} | {row['Start time']} - {row['End time']} | {row['Pilot']} | {row['Drone']} | {row['Duration (h)']}h")
-    if st.button("❌ Delete", key=f"del_{row['ID']}"):
-        c.execute("DELETE FROM flights WHERE id = ?", (row['ID'],))
-        conn.commit()
-        st.experimental_rerun()
-
-# --- download CSV only ---
 if not df.empty:
+    df["Duration (h)"] = df["duration"].map(lambda x: f"{x:.2f}")
+    for _, row in df.iterrows():
+        st.write(f"{row['date']} | {row['start_time']} - {row['end_time']} | {row['pilot']} | {row['drone']} | {row['Duration (h)']}h")
+        if st.button("❌ Delete", key=f"del_{row['id']}"):
+            supabase.table("flights").delete().eq("id", row["id"]).execute()
+            st.experimental_rerun()
+
+    # --- download CSV only ---
     st.download_button(
         label="⬇Download as CSV",
-        data=df.drop(columns=["ID"]).to_csv(index=False).encode("utf-8"),
+        data=df.drop(columns=["id"]).to_csv(index=False).encode("utf-8"),
         file_name="flights.csv",
         mime="text/csv"
     )
@@ -93,22 +83,19 @@ if not df.empty:
 # --- statistics ---
 st.subheader("Statistics")
 
-# total flight hours per pilot
-pilot_hours = c.execute("""
-    SELECT pilot, SUM(duration) as total_hours, COUNT(*) as flights 
-    FROM flights GROUP BY pilot
-""").fetchall()
-df_pilot = pd.DataFrame(pilot_hours, columns=["Pilot", "Total hours", "Flights"])
-df_pilot["Total hours"] = df_pilot["Total hours"].map(lambda x: f"{x:.2f}")
-st.write("Total flight hours per pilot:")
-st.table(df_pilot)
+if not df.empty:
+    # total flight hours per pilot
+    df_pilot = df.groupby("pilot").agg(
+        Total_hours=("duration", lambda x: f"{x.sum():.2f}"),
+        Flights=("id", "count")
+    ).reset_index()
+    st.write("Total flight hours per pilot:")
+    st.table(df_pilot)
 
-# total flight hours per drone
-drone_hours = c.execute("""
-    SELECT drone, SUM(duration) as total_hours, COUNT(*) as flights 
-    FROM flights GROUP BY drone
-""").fetchall()
-df_drone = pd.DataFrame(drone_hours, columns=["Drone", "Total hours", "Flights"])
-df_drone["Total hours"] = df_drone["Total hours"].map(lambda x: f"{x:.2f}")
-st.write("Total flight hours per drone:")
-st.table(df_drone)
+    # total flight hours per drone
+    df_drone = df.groupby("drone").agg(
+        Total_hours=("duration", lambda x: f"{x.sum():.2f}"),
+        Flights=("id", "count")
+    ).reset_index()
+    st.write("Total flight hours per drone:")
+    st.table(df_drone)
