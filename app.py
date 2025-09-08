@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 from datetime import datetime, time
-from supabase import create_client, Client
+from supabase import create_client
 
 # --- Streamlit config ---
 st.set_page_config(page_title="Drone Flight Log", layout="centered")
@@ -23,8 +23,15 @@ st.markdown(
 
 # --- connect to Supabase using service role key ---
 url = st.secrets["SUPABASE_URL"]
-key = st.secrets["SUPABASE_SERVICE_ROLE_KEY"]
-supabase: Client = create_client(url, key)
+anon_key = st.secrets["SUPABASE_KEY"]
+service_key = st.secrets["SUPABASE_SERVICE_ROLE_KEY"]
+
+
+# klient dla zwykłych operacji (dodawanie, odczyt)
+supabase = create_client(url, anon_key)
+
+# klient dla admina (usuwanie lotów)
+supabase_admin = create_client(url, service_key)
 
 # --- interface ---
 st.title("Drone Flight Log")
@@ -86,8 +93,8 @@ if not df.empty:
             f"{row['pilot']} | {row['drone']} | {row['Duration (h)']}h"
         )
         if st.button("❌ Delete", key=f"del_{row['id']}"):
-            supabase.table("flights").delete().eq("id", row["id"]).execute()
-            st.experimental_rerun()
+    supabase_admin.table("flights").delete().eq("id", row["id"]).execute()
+    st.experimental_rerun()
 
     # --- download CSV only ---
     st.download_button(
