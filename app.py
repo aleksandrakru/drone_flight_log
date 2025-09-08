@@ -10,24 +10,20 @@ st.set_page_config(page_title="Drone Flight Log", layout="centered")
 st.image("logo.png", width=200)
 
 # --- background ---
-st.markdown(
-    """
+st.markdown("""
     <style>
     .stApp {
         background-color: #f7f2f2
     }
     </style>
-    """,
-    unsafe_allow_html=True
-)
+""", unsafe_allow_html=True)
 
 # --- connect to Supabase ---
-SUPABASE_URL = st.secrets["SUPABASE_URL"]
-SUPABASE_KEY = st.secrets["SUPABASE_KEY"]  # do insert/read
-SUPABASE_SERVICE_ROLE_KEY = st.secrets["SUPABASE_SERVICE_ROLE_KEY"]  # do delete
-
-supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-supabase_admin = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+url = st.secrets["SUPABASE_URL"]
+key = st.secrets["SUPABASE_KEY"]
+service_role_key = st.secrets["SUPABASE_SERVICE_ROLE_KEY"]
+supabase = create_client(url, key)
+supabase_admin: Client = create_client(url, service_role_key)
 
 # --- interface ---
 st.title("✈️ Drone Flight Log")
@@ -49,7 +45,6 @@ with st.form("flight_form"):
     ])
     submit = st.form_submit_button("Save flight")
 
-# --- save flight ---
 if submit:
     start_dt = datetime.combine(datetime.today(), start)
     end_dt = datetime.combine(datetime.today(), end)
@@ -58,7 +53,7 @@ if submit:
     if duration <= 0:
         st.error("❌ End time must be later than start time.")
     else:
-        date_str = date.strftime("%y-%m-%d")  # YY-MM-DD format
+        date_str = date.strftime("%y-%m-%d")  # YY-MM-DD
         result = supabase.table("flights").insert({
             "date": date_str,
             "start_time": str(start),
