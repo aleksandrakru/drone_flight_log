@@ -53,7 +53,7 @@ if submit:
     if duration <= 0:
         st.error("❌ End time must be later than start time.")
     else:
-        date_str = date.strftime("%y-%m-%d")  # YY-MM-DD
+        date_str = date.strftime("%Y-%m-%d")  # YYYY-MM-DD
         result = supabase.table("flights").insert({
             "date": date_str,
             "start_time": str(start),
