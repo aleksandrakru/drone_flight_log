@@ -70,7 +70,7 @@ if submit:
             st.error(f"❌ Failed to save flight: {result}")
 
 # --- data preview with delete buttons ---
-st.subheader("Logged flights (Admin)")
+st.subheader("Logged flights")
 
 response = supabase.table("flights").select("*").execute()
 rows = response.data
