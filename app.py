@@ -3,6 +3,7 @@ import pandas as pd
 from datetime import datetime, time
 from supabase import create_client, Client
 
+# --- Streamlit config ---
 st.set_page_config(page_title="Drone Flight Log", layout="centered")
 
 # --- logo ---
@@ -20,9 +21,9 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# --- connect to Supabase ---
+# --- connect to Supabase using service role key ---
 url = st.secrets["SUPABASE_URL"]
-key = st.secrets["SUPABASE_SERVICE_ROLE_KEY"]  # używamy service_role do DELETE
+key = st.secrets["SUPABASE_SERVICE_ROLE_KEY"]
 supabase: Client = create_client(url, key)
 
 # --- interface ---
