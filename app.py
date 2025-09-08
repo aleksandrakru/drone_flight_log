@@ -21,8 +21,8 @@ st.markdown(
 )
 
 # --- connect to Supabase ---
-url = st.secrets["SUPABASE_URL"]
-key = st.secrets["SUPABASE_KEY"]
+url = st.secrets["https://zjfrghjutebuqzuyokef.supabase.co"]
+key = st.secrets["eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqZnJnaGp1dGVidXF6dXlva2VmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTczMTcxMTMsImV4cCI6MjA3Mjg5MzExM30.uX2m71ICkpnmG8reWs1Kx8ch2J1Zkg6mwJXawEkj7u0"]
 supabase: Client = create_client(url, key)
 
 # --- interface ---
