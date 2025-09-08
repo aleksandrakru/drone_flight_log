@@ -93,8 +93,8 @@ if not df.empty:
             f"{row['pilot']} | {row['drone']} | {row['Duration (h)']}h"
         )
         if st.button("❌ Delete", key=f"del_{row['id']}"):
-    supabase_admin.table("flights").delete().eq("id", row["id"]).execute()
-    st.experimental_rerun()
+        supabase_admin.table("flights").delete().eq("id", row["id"]).execute()
+        st.experimental_rerun()
 
     # --- download CSV only ---
     st.download_button(
