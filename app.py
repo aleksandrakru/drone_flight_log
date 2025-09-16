@@ -38,8 +38,8 @@ with st.form("flight_form"):
         "Joao Scotti", "Michael Lloyd"
     ])
     drone = st.selectbox("Drone", [
-        "DJI Mini 3 - 1581F4XFC2285007E8MV",
-        "DJI Mini 3 - Manchester",
+        "DJI Mini 3 - 1581F4XFC2285007E8MV - London",
+        "DJI Mini 3 - 1581F4XFC228P007GBYS - Manchester",
         "DJI Mini 2",
         "DJI Mavic 3 Enterprise"
     ])
